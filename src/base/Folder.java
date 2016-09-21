@@ -78,8 +78,11 @@ public class Folder implements Comparable<Folder> {
 		String[] keys = keywords.split(" ");
 		// check is the boolean that allows to add the current note in the
 		// searching list
-		boolean check = true;
+		boolean checkTitle = true;
+		boolean checkContent = false;
 		for (Note note : notes) {
+			if (note instanceof TextNote)
+				checkContent = true;
 			for (int i = 0; i < keys.length; i++) {
 				//we should never be in this case if the keywords are in the good format
 				if (keys[i].toLowerCase().equals("or")) {
@@ -93,20 +96,20 @@ public class Folder implements Comparable<Folder> {
 					} 
 					// case where we have key1 OR key2 ; variable "i" is currently on key1 at this step
 					else {
-						check = check && (note.getTitle().toLowerCase().contains(keys[i].toLowerCase())
+						checkTitle = checkTitle && (note.getTitle().toLowerCase().contains(keys[i].toLowerCase())
 								|| note.getTitle().toLowerCase().contains(keys[i + 2].toLowerCase()));
 						if (note instanceof TextNote) 
-							check = check || (((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase()) || ((TextNote)note).getContent().toLowerCase().contains(keys[i+2].toLowerCase()));						 
+							checkContent = checkContent && (((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase()) || ((TextNote)note).getContent().toLowerCase().contains(keys[i+2].toLowerCase()));						 
 						i = i + 2;
 					}
 					// case where we have key1 key2 ; variable "i" is currently on key1 at this step
 				} else {
-					check = check && note.getTitle().toLowerCase().contains(keys[i].toLowerCase());
+					checkTitle = checkTitle && note.getTitle().toLowerCase().contains(keys[i].toLowerCase());
 					if (note instanceof TextNote) 
-						check = check || ((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase());
+						checkContent = checkContent && ((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase());
 				}
 			}
-			if (check)
+			if (checkTitle || checkContent)
 				sortedNotes.add(note);
 		}
 		return sortedNotes;
