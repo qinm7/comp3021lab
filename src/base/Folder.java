@@ -1,24 +1,27 @@
 package base;
-import java.util.ArrayList;
 
-public class Folder {
-	
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class Folder implements Comparable<Folder> {
+
 	private ArrayList<Note> notes;
 	private String name;
-	
-	public Folder (String name) {
+
+	public Folder(String name) {
 		this.name = name;
 		notes = new ArrayList<Note>();
 	}
-	
-	public void addNote (Note note) {
+
+	public void addNote(Note note) {
 		notes.add(note);
 	}
-	
-	public String getName () {
+
+	public String getName() {
 		return this.name;
 	}
-	
+
 	public ArrayList<Note> getNotes() {
 		return this.notes;
 	}
@@ -32,7 +35,7 @@ public class Folder {
 				nText++;
 			else if (note instanceof ImageNote)
 				nImage++;
-		}	
+		}
 		return this.name + ":" + nText + ":" + nImage;
 	}
 
@@ -60,6 +63,52 @@ public class Folder {
 			return false;
 		return true;
 	}
-	
-	
+
+	@Override
+	public int compareTo(Folder o) {
+		return this.name.compareTo(o.name);
+	}
+
+	public void sortNotes() {
+		Collections.sort(notes);
+	}
+
+	public List<Note> searchNotes(String keywords) {
+		List<Note> sortedNotes = new ArrayList<>();
+		String[] keys = keywords.split(" ");
+		// check is the boolean that allows to add the current note in the
+		// searching list
+		boolean check = true;
+		for (Note note : notes) {
+			for (int i = 0; i < keys.length; i++) {
+				//we should never be in this case if the keywords are in the good format
+				if (keys[i].toLowerCase().equals("or")) {
+					System.err.println("\n or keyword problem 1 \n" + i);
+					System.exit(-1);
+				} else if (i + 2 < keys.length && keys[i + 1].toLowerCase().equals("or")) {
+					//we should never be in this case if the keywords are in the good format
+					if (keys[i + 2].equals("or")) {
+						System.err.println("\n or keyword problem 2 \n");
+						System.exit(-1);
+					} 
+					// case where we have key1 OR key2 ; variable "i" is currently on key1 at this step
+					else {
+						check = check && (note.getTitle().toLowerCase().contains(keys[i].toLowerCase())
+								|| note.getTitle().toLowerCase().contains(keys[i + 2].toLowerCase()));
+						if (note instanceof TextNote) 
+							check = check || (((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase()) || ((TextNote)note).getContent().toLowerCase().contains(keys[i+2].toLowerCase()));						 
+						i = i + 2;
+					}
+					// case where we have key1 key2 ; variable "i" is currently on key1 at this step
+				} else {
+					check = check && note.getTitle().toLowerCase().contains(keys[i].toLowerCase());
+					if (note instanceof TextNote) 
+						check = check || ((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase());
+				}
+			}
+			if (check)
+				sortedNotes.add(note);
+		}
+		return sortedNotes;
+	}
 }
