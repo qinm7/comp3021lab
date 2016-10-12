@@ -98,6 +98,10 @@ public class TextNote extends Note {
 			if (c <= 'Z' && c >= 'A' || c <= 'z' && c >= 'a') {
 				if (!count.containsKey(c)) {
 					count.put(c, 1);
+					if (count.get(c) > b) {
+						b = count.get(c);
+						r = c;
+					}
 				} else {
 					count.put(c, count.get(c) + 1);
 					if (count.get(c) > b) {
