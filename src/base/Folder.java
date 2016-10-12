@@ -86,14 +86,14 @@ public class Folder implements Comparable<Folder>, Serializable {
 				checkContent = true;
 			for (int i = 0; i < keys.length; i++) {
 				//we should never be in this case if the keywords are in the good format
-				if (keys[i].toLowerCase().equals("or")) {
-					System.err.println("\n or keyword problem 1 \n" + i);
-					System.exit(-1);
+				if ((i == 0 || i == keys.length-1) && keys[i].toLowerCase().equals("or")) {
+					System.err.println("or keyword problem 1 : i = " + i + "\n");
+					//System.exit(-1);
 				} else if (i + 2 < keys.length && keys[i + 1].toLowerCase().equals("or")) {
 					//we should never be in this case if the keywords are in the good format
 					if (keys[i + 2].equals("or")) {
-						System.err.println("\n or keyword problem 2 \n");
-						System.exit(-1);
+						System.err.println("or or keyword problem 2 \n");
+						//System.exit(-1);
 					} 
 					// case where we have key1 OR key2 ; variable "i" is currently on key1 at this step
 					else {
@@ -102,9 +102,24 @@ public class Folder implements Comparable<Folder>, Serializable {
 						if (note instanceof TextNote) 
 							checkContent = checkContent && (((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase()) || ((TextNote)note).getContent().toLowerCase().contains(keys[i+2].toLowerCase()));						 
 						i = i + 2;
+//						System.out.println(note + " " + keys[i-2] + ", " + keys[i] + " checkTitle:" + checkTitle + " ; checkContent: " + checkContent + " i:" + i);
 					}
 					// case where we have key1 key2 ; variable "i" is currently on key1 at this step
-				} else {
+				} else if (keys[i].toLowerCase().equals("or")) {
+					//we should never be in this case if the keywords are in the good format
+					if (keys[i+1].toLowerCase().equals("or")) {
+						System.err.println("or or keyword problem 3 \n");
+						//System.exit(-1);
+					}
+					// case where we have OR key2 ; variable "i" is currently on OR at this step
+					else {
+						checkTitle = checkTitle || note.getTitle().toLowerCase().contains(keys[i+1].toLowerCase());
+						if (note instanceof TextNote) 
+							checkContent = checkContent || ((TextNote)note).getContent().toLowerCase().contains(keys[i+1].toLowerCase());
+						i = i + 1;
+					}
+				}
+				else {
 					checkTitle = checkTitle && note.getTitle().toLowerCase().contains(keys[i].toLowerCase());
 					if (note instanceof TextNote) 
 						checkContent = checkContent && ((TextNote)note).getContent().toLowerCase().contains(keys[i].toLowerCase());
